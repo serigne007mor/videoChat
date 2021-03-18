@@ -33,3 +33,26 @@ const servers = {
 const pc = new RTCPeerConnection(servers);
 let localStream = null;
 let remoteStream = null;
+
+webcamButton.onclick = async() => {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+
+    // Push tracks from local stream to peer connection
+    localStream.getTracks().forEach((track) => {
+        pc.addTrack(track, localStream);
+    });
+
+    // Show stream in HTML video
+    webcamVideo.srcObject = localStream;
+}
+
+remoteStream = new MediaStream();
+
+// Pull tracks from remote stream, add to video stream
+pc.ontrack = event => {
+    event.streams[0].getTracks().forEach(track => {
+        remoteStream.addTrack(track);
+    });
+};
+
+remoteVideo.srcObject = remoteStream;
